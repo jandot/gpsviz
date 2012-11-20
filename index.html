@@ -1,24 +1,83 @@
 <!DOCTYPE html>
+<html>
 <head>
-<meta charset="utf-8">
-<title>My project</title>
-<style>/* Type your CSS here */</style>
-<script src="http://mbostock.github.com/d3/d3.v2.js"></script>
+  <script src='http://api.tiles.mapbox.com/mapbox.js/v0.6.6/mapbox.js'></script>
+  <link href='http://api.tiles.mapbox.com/mapbox.js/v0.6.6/mapbox.css' rel='stylesheet' />
+  <style>
+    body { margin:0; padding:0; }
+    #map { position:absolute; top:0; bottom:0; width:100%; }
+  </style>
 </head>
 <body>
-<svg width=600 height=600></svg>
+<div id='map'></div>
+
+<script src='http://d3js.org/d3.v2.min.js'></script>
+
+<style>
+  body { margin:0; padding:0; }
+  #map { position:absolute; top:0; bottom:0; width:100%; }
+  .d3-vec { position:absolute; }
+  path {
+	fill: none;
+	stroke: red;
+	stroke-width: 3px;
+  }
+</style>
+
 <script>
-var svg = d3.select('svg')
+// Based on http://mapbox.com/mapbox.js/example/vectors-with-d3/
+function d3layer() {
+    var f = {}, bounds, feature, collection;
+    var div = d3.select(document.body)
+        .append("div")
+        .attr('class', 'd3-vec'),
+        svg = div.append('svg'),
+        g = svg.append("g");
 
-var scale_lat = d3.scale.linear().domain([50.86, 50.91]).range([10, 590])
-var scale_lon = d3.scale.linear().domain([4.65, 4.69]).range([10, 590])
+    f.parent = div.node();
 
-var line = d3.svg.line()
-			.x(function(d) { return scale_lat(d.lat) })
-			.y(function(d) { return scale_lon(d.lon) })
-			
-d3.csv("data.csv", function(csv) {
-	svg.append("svg:path").attr("d", line(csv)).attr("stroke","black").attr("fill","none")
+    f.project = function(x) {
+      var point = f.map.locationPoint({ lat: x[0], lon: x[1] });
+      return [point.x, point.y];
+    };
+
+    var first = true;
+    f.draw = function() {
+      first && svg.attr("width", f.map.dimensions.x)
+          .attr("height", f.map.dimensions.y)
+          .style("margin-left", "0px")
+          .style("margin-top", "0px") && (first = false);
+
+      path = d3.geo.path().projection(f.project);
+      feature.attr("d", path);
+    };
+
+    f.data = function(x) {
+        collection = x;
+        bounds = d3.geo.bounds(collection);
+        feature = g.selectAll("path")
+            .data(collection.features)
+            .enter().append("path");
+        return f;
+    };
+    return f;
+}
+var data;
+d3.csv("data.csv", function(rows) {
+	locations = []
+	for (r in rows) {
+		console.log(rows[r].lat + ";" + rows[r].lon)
+		locations.push([rows[r].lat,rows[r].lon])
+	}
+	var csv = {"type":"FeatureCollection",
+			   "features":[
+					{"type":"Feature",
+				 	 "geometry":{"type":"LineString","coordinates":locations}}]}
+	mapbox.auto('map', 'jandot.map-wd79o451', function(map) {
+		l = d3layer().data(csv);
+		map.addLayer(l);
+		map.setExtent([{ lat: 50.85, lon: 4.65 }, { lat: 50.95, lon: 4.8 }]);
+	});
 })
 </script>
 </body>
