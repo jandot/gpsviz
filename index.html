@@ -12,15 +12,13 @@ var svg = d3.select('svg')
 
 var scale_lat = d3.scale.linear().domain([50.86, 50.91]).range([10, 590])
 var scale_lon = d3.scale.linear().domain([4.65, 4.69]).range([10, 590])
+
+var line = d3.svg.line()
+			.x(function(d) { return scale_lat(d.lat) })
+			.y(function(d) { return scale_lon(d.lon) })
+			
 d3.csv("data.csv", function(csv) {
-	svg.selectAll("circle")
-		.data(csv)
-		.enter()
-		.append("circle")
-		.attr("cx", function(d) { return scale_lat(d.lat) } )
-		.attr("cy", function(d) { return scale_lon(d.lon) } )
-		.attr("r", 3)
-		.attr("fill", "grey")
+	svg.append("svg:path").attr("d", line(csv)).attr("stroke","black").attr("fill","none")
 })
 </script>
 </body>
