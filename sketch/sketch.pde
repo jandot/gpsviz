@@ -50,6 +50,7 @@ void draw() {
     
     locationCounter = locationCounter + 1;
     
+    if ( locationCounter >= locationList.size() ) { exit(); };
 }
 
 void loadData() {
