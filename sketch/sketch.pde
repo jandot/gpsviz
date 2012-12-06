@@ -19,7 +19,7 @@ void setup() {
     
     noStroke();
     fill(255,0,0,200);
-    frameRate(50);
+    frameRate(25);
     
     map.zoomAndPanTo(new Location(herentLocation.getLat(), herentLocation.getLon()), 12);
     loadData();
@@ -29,10 +29,15 @@ void setup() {
 void draw() {
     map.draw();
     
-    if ( locationCounter >= locationList.size() ) { exit(); };
-    SimplePointMarker m = new SimplePointMarker(locationList.get(locationCounter));
-    ScreenPosition markerPos = m.getScreenPosition(map);
-    ellipse(markerPos.x, markerPos.y, 10, 10);
+    Integer opacity = 50;
+    for (int i = max(locationCounter - 5,0); i <= locationCounter; i++ ) {
+      SimplePointMarker m = new SimplePointMarker(locationList.get(i));
+      ScreenPosition markerPos = m.getScreenPosition(map);
+      
+      fill(255,0,0,opacity);
+      ellipse(markerPos.x, markerPos.y, 10, 10);
+      opacity = opacity + 25;
+    }
     
     // Draw timeline
     Float remappedTime = map(timeList.get(locationCounter), 0, 1440, 0, 200);
@@ -42,7 +47,6 @@ void draw() {
     stroke(0,0,0);
     line(remappedTime, 500, remappedTime, 520);
     noStroke();
-    fill(255,0,0,200);
     
     locationCounter = locationCounter + 1;
     
