@@ -76,7 +76,7 @@ d3.csv("data.csv", function(rows) {
 	mapbox.auto('map', 'jandot.map-wd79o451', function(map) {
 		l = d3layer().data(csv);
 		map.addLayer(l);
-		map.setExtent([{ lat: 50.85, lon: 4.65 }, { lat: 50.95, lon: 4.8 }]);
+		map.setExtent([{ lat: rows[0].lat, lon: rows[0].lon }, { lat: rows[rows.length-1].lat, lon: rows[rows.length-1].lon }]);
 	});
 })
 </script>
